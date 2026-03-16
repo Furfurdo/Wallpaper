@@ -1,0 +1,65 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ruihexian</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <video
+    id="bg-video"
+    class="bg-video"
+    autoplay
+    muted
+    loop
+    playsinline
+  >
+    <source src="assets/bg.webm" type="video/webm">
+  </video>
+
+  <div class="texture texture-paper"></div>
+  <div class="texture texture-veil"></div>
+  <div class="water-halo"></div>
+  <img
+    class="ornament ornament-branch"
+    src="https://cdn.pixabay.com/photo/2020/04/13/03/52/cherry-blossom-5034182_1280.png"
+    alt=""
+    referrerpolicy="no-referrer"
+  >
+  <img
+    class="ornament ornament-petals"
+    src="https://cdn.pixabay.com/photo/2021/04/22/13/58/cherry-6200501_1280.png"
+    alt=""
+    referrerpolicy="no-referrer"
+  >
+  <div class="ambient ambient-left"></div>
+  <div class="ambient ambient-right"></div>
+  <div class="mist mist-left"></div>
+  <div class="mist mist-right"></div>
+  <canvas id="audio-canvas" class="audio-canvas"></canvas>
+  <div class="overlay"></div>
+
+  <main id="hud" class="hud">
+    <section id="clock-panel" class="clock-panel">
+      <img class="panel-script panel-script-clock" src="assets/zhong-silk.svg" alt="">
+      <div class="crest" aria-hidden="true"></div>
+      <div id="time" class="time">00:00</div>
+      <div id="date" class="date">0000-00-00</div>
+    </section>
+  </main>
+
+  <div id="audio-debug" class="audio-debug" aria-hidden="true" hidden>
+    <div id="audio-debug-dot" class="audio-debug-dot"></div>
+    <div id="audio-debug-text" class="audio-debug-text">0.00</div>
+  </div>
+
+  <audio id="bgm" autoplay loop preload="auto" playsinline>
+    <source src="assets/bgm.ogg" type="audio/ogg">
+    <source src="assets/bgm.m4a" type="audio/mp4">
+  </audio>
+
+  <script src="assets/bgm-envelope.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

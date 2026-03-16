@@ -1,0 +1,83 @@
+﻿{
+  "file": "index.html",
+  "general": {
+    "properties": {
+      "layoutmode": {
+        "index": 0,
+        "options": [
+          { "label": "Left", "value": "left" },
+          { "label": "Right", "value": "right" },
+          { "label": "Center", "value": "center" }
+        ],
+        "order": 100,
+        "text": "Layout",
+        "type": "combo",
+        "value": "left"
+      },
+      "showclock": {
+        "index": 1,
+        "order": 101,
+        "text": "Show Clock",
+        "type": "bool",
+        "value": true
+      },
+      "accentcolor": {
+        "index": 2,
+        "order": 102,
+        "text": "Accent Color",
+        "type": "color",
+        "value": "0.572549 0.141176 0.180392"
+      },
+      "audiosensitivity": {
+        "index": 3,
+        "max": 250,
+        "min": 20,
+        "order": 103,
+        "precision": 0,
+        "text": "Audio Sensitivity (%)",
+        "type": "slider",
+        "value": 120
+      },
+      "pulseheight": {
+        "index": 4,
+        "max": 180,
+        "min": 20,
+        "order": 104,
+        "precision": 0,
+        "text": "Sun Radius",
+        "type": "slider",
+        "value": 88
+      },
+      "pulsethickness": {
+        "index": 5,
+        "max": 36,
+        "min": 8,
+        "order": 105,
+        "precision": 0,
+        "text": "Corona Intensity",
+        "type": "slider",
+        "value": 16
+      },
+      "bgmvolume": {
+        "index": 6,
+        "max": 100,
+        "min": 0,
+        "order": 106,
+        "precision": 0,
+        "text": "BGM Volume (%)",
+        "type": "slider",
+        "value": 35
+      },
+      "schemecolor": {
+        "order": 0,
+        "text": "ui_browse_properties_scheme_color",
+        "type": "color",
+        "value": "0 0 0"
+      }
+    },
+    "supportsaudioprocessing": true
+  },
+  "title": "ruihexian",
+  "type": "web",
+  "version": 0
+}

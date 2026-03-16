@@ -1,0 +1,339 @@
+﻿* {
+  box-sizing: border-box;
+}
+
+:root {
+  --foreground: #f2e7d7;
+  --muted: rgba(236, 224, 210, 0.72);
+  --accent-r: 146;
+  --accent-g: 39;
+  --accent-b: 31;
+  --jade-r: 108;
+  --jade-g: 127;
+  --jade-b: 114;
+  --accent: rgb(var(--accent-r), var(--accent-g), var(--accent-b));
+  --bass: 0;
+  --mid: 0;
+  --treble: 0;
+  --pulse-height: 88;
+  --pulse-thickness: 1.6;
+  --mx: 0px;
+  --my: 0px;
+  --paper-url: url("https://cdn.pixabay.com/photo/2024/02/23/17/31/ai-generated-8592554_1280.png");
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top, rgba(var(--jade-r), var(--jade-g), var(--jade-b), 0.08), transparent 28%),
+    linear-gradient(180deg, #0d0909, #050405 68%, #020203);
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(calc(1.028 + var(--bass) * 0.008));
+  filter: saturate(0.72) contrast(1.1) brightness(0.58);
+}
+
+.texture,
+.ornament,
+.water-halo {
+  position: fixed;
+  pointer-events: none;
+}
+
+.texture-paper {
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 4, 4, 0.08), rgba(6, 4, 5, 0.28)),
+    var(--paper-url) center/cover no-repeat;
+  mix-blend-mode: soft-light;
+  opacity: 0.16;
+}
+
+.texture-veil {
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), calc(0.16 + var(--bass) * 0.08)), transparent 17%),
+    radial-gradient(circle at 50% 46%, rgba(248, 236, 220, 0.05), transparent 11%),
+    radial-gradient(circle at 76% 24%, rgba(236, 223, 204, 0.04), transparent 22%),
+    linear-gradient(180deg, rgba(8, 6, 7, 0.02), rgba(3, 2, 3, 0.22));
+}
+
+.ornament {
+  z-index: 1;
+  display: block;
+  max-width: none;
+  user-select: none;
+}
+
+.ornament-branch {
+  top: -6vh;
+  right: -8vw;
+  width: min(44vw, 700px);
+  opacity: 0.15;
+  transform: rotate(-2deg) scale(calc(1 + var(--treble) * 0.025));
+  filter: saturate(0.78) sepia(0.2) hue-rotate(-12deg) brightness(0.84);
+  mix-blend-mode: screen;
+}
+
+.ornament-petals {
+  left: -6vw;
+  bottom: -12vh;
+  width: min(42vw, 640px);
+  opacity: calc(0.05 + var(--treble) * 0.03);
+  transform: rotate(7deg) translate3d(0, calc(var(--mid) * -5px), 0);
+  filter: blur(1px) saturate(0.6) brightness(0.66);
+  mix-blend-mode: screen;
+}
+
+.water-halo {
+  left: 50%;
+  top: 51.5%;
+  width: min(34vw, 540px);
+  aspect-ratio: 1;
+  z-index: 1;
+  transform: translate(-50%, -50%) scale(calc(0.96 + var(--bass) * 0.05));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(247, 240, 232, 0.16) 0 8%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.38) 20%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.28) 34%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1) 52%, rgba(0, 0, 0, 0) 72%),
+    radial-gradient(circle at 50% 48%, rgba(248, 242, 236, 0.12), rgba(255, 255, 255, 0) 40%);
+  opacity: calc(0.22 + var(--bass) * 0.16 + var(--mid) * 0.05);
+  mix-blend-mode: screen;
+  filter: blur(14px) saturate(0.92) brightness(0.92);
+}
+
+.ambient {
+  position: fixed;
+  width: 44vw;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  filter: blur(62px);
+  opacity: 0.66;
+  pointer-events: none;
+}
+
+.ambient-left {
+  top: -16vw;
+  left: -12vw;
+  background: radial-gradient(circle, rgba(var(--accent-r), var(--accent-g), var(--accent-b), calc(0.12 + var(--bass) * 0.1)), transparent 64%);
+}
+
+.ambient-right {
+  right: -14vw;
+  bottom: -18vw;
+  background: radial-gradient(circle, rgba(var(--jade-r), var(--jade-g), var(--jade-b), calc(0.1 + var(--mid) * 0.08)), transparent 62%);
+}
+
+.mist {
+  position: fixed;
+  inset: auto;
+  width: min(52vw, 820px);
+  aspect-ratio: 1.9;
+  background: center/contain no-repeat url("assets/fog.png");
+  filter: blur(14px);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.mist-left {
+  left: -8vw;
+  bottom: -2vh;
+  transform: rotate(4deg) scale(1.08);
+}
+
+.mist-right {
+  right: -15vw;
+  top: 4vh;
+  transform: rotate(-12deg) scale(0.96);
+}
+
+.audio-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  opacity: calc(0.86 + var(--mid) * 0.1);
+  pointer-events: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at top center, rgba(241, 232, 226, 0.03), transparent 24%),
+    linear-gradient(180deg, rgba(8, 6, 7, 0.06), rgba(5, 4, 5, 0.6));
+  pointer-events: none;
+}
+
+.audio-debug {
+  display: none;
+}
+
+.hud {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
+  padding: 40px 44px;
+}
+
+.clock-panel {
+  position: relative;
+  width: min(40vw, 520px);
+  min-height: 180px;
+  padding: 10px 8px 4px 8px;
+  transform: translate3d(calc(var(--mx) * 0.025), calc(var(--my) * 0.025), 0);
+  animation: panel-in 900ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.panel-label {
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  z-index: 2;
+  font-family: "KaiTi", "STKaiti", "Kaiti SC", serif;
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  color: rgba(236, 224, 206, 0.66);
+}
+
+.panel-label::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.52), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0));
+}
+
+.panel-script {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: screen;
+  opacity: 0.12;
+  filter: sepia(0.24) saturate(0.72) brightness(0.92);
+}
+
+.panel-script-clock {
+  left: -4px;
+  top: 26px;
+  width: 84px;
+  transform: rotate(-7deg);
+}
+
+.crest {
+  position: absolute;
+  left: 14px;
+  top: 54px;
+  width: 160px;
+  height: 56px;
+  opacity: 0.34;
+  background:
+    radial-gradient(circle at 14% 56%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.48), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0) 58%),
+    linear-gradient(90deg, rgba(244, 236, 228, 0.24), rgba(244, 236, 228, 0) 78%);
+  filter: blur(4px);
+}
+
+.time {
+  position: relative;
+  z-index: 2;
+  margin-top: 50px;
+  font-size: clamp(62px, 8vw, 106px);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 0.92;
+  font-family: Georgia, "Times New Roman", serif;
+  text-shadow:
+    0 0 calc(18px + var(--bass) * 18px) rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.16),
+    0 0 calc(6px + var(--treble) * 8px) rgba(255, 248, 240, 0.18);
+}
+
+.date {
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
+  padding-left: 4px;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-family: "KaiTi", "STKaiti", "Kaiti SC", serif;
+}
+
+body[data-layout="right"] .hud {
+  justify-content: flex-end;
+}
+
+body[data-layout="center"] .hud {
+  justify-content: center;
+}
+
+body[data-show-clock="false"] .clock-panel {
+  display: none;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(calc(var(--mx) * 0.025), calc(var(--my) * 0.025), 0) scale(1);
+  }
+}
+
+@media (max-width: 800px) {
+  .ornament-branch {
+    width: 68vw;
+    right: -18vw;
+  }
+
+  .ornament-petals {
+    width: 60vw;
+    left: -18vw;
+  }
+
+  .water-halo {
+    width: 62vw;
+    top: 49%;
+  }
+
+  .hud {
+    padding: 24px;
+  }
+
+  .clock-panel {
+    width: 100%;
+    min-height: 150px;
+  }
+
+  .time {
+    font-size: clamp(54px, 18vw, 82px);
+  }
+}
