@@ -19,6 +19,13 @@
   --pulse-thickness: 1.6;
   --mx: 0px;
   --my: 0px;
+  --axis-x: 50vw;
+  --clock-x: 50vw;
+  --clock-y: 50vh;
+  --clock-offset-x: 0px;
+  --clock-offset-y: 0px;
+  --clock-scale: 1;
+  --clock-opacity: 0.92;
   --paper-url: url("https://cdn.pixabay.com/photo/2024/02/23/17/31/ai-generated-8592554_1280.png");
 }
 
@@ -113,11 +120,11 @@ body {
   transform: translate(-50%, -50%) scale(calc(0.96 + var(--bass) * 0.05));
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, rgba(247, 240, 232, 0.16) 0 8%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.38) 20%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.28) 34%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1) 52%, rgba(0, 0, 0, 0) 72%),
-    radial-gradient(circle at 50% 48%, rgba(248, 242, 236, 0.12), rgba(255, 255, 255, 0) 40%);
-  opacity: calc(0.22 + var(--bass) * 0.16 + var(--mid) * 0.05);
+    radial-gradient(circle at center, rgba(247, 240, 232, 0.08) 0 8%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.24) 20%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.16) 34%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.05) 52%, rgba(0, 0, 0, 0) 72%),
+    radial-gradient(circle at 50% 48%, rgba(248, 242, 236, 0.05), rgba(255, 255, 255, 0) 40%);
+  opacity: calc(0.1 + var(--bass) * 0.08 + var(--mid) * 0.03);
   mix-blend-mode: screen;
-  filter: blur(14px) saturate(0.92) brightness(0.92);
+  filter: blur(16px) saturate(0.86) brightness(0.78);
 }
 
 .ambient {
@@ -168,7 +175,7 @@ body {
 .audio-canvas {
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
   opacity: calc(0.86 + var(--mid) * 0.1);
   pointer-events: none;
 }
@@ -183,113 +190,187 @@ body {
   pointer-events: none;
 }
 
-.audio-debug {
-  display: none;
-}
-
 .hud {
   position: relative;
   z-index: 3;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
+  display: block;
   width: 100%;
   height: 100%;
   padding: 40px 44px;
 }
 
 .clock-panel {
-  position: relative;
-  width: min(40vw, 520px);
-  min-height: 180px;
-  padding: 10px 8px 4px 8px;
-  transform: translate3d(calc(var(--mx) * 0.025), calc(var(--my) * 0.025), 0);
+  position: absolute;
+  left: var(--clock-x);
+  top: var(--clock-y);
+  width: min(38vw, 500px);
+  min-height: 96px;
+  padding: 12px 0 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: var(--clock-opacity);
+  transform: translate3d(calc(-50% + var(--clock-offset-x) + var(--mx) * 0.014), calc(-50% + var(--clock-offset-y) + var(--my) * 0.014), 0) scale(var(--clock-scale));
+  transform-origin: center center;
   animation: panel-in 900ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
-}
-
-.panel-label {
-  position: absolute;
-  top: 2px;
-  left: 8px;
-  z-index: 2;
-  font-family: "KaiTi", "STKaiti", "Kaiti SC", serif;
-  font-size: 13px;
-  letter-spacing: 0.28em;
-  color: rgba(236, 224, 206, 0.66);
-}
-
-.panel-label::after {
-  content: "";
-  position: absolute;
-  left: calc(100% + 10px);
-  top: 50%;
-  width: 64px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.52), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0));
-}
-
-.panel-script {
-  position: absolute;
-  z-index: 1;
-  display: block;
-  pointer-events: none;
-  user-select: none;
-  mix-blend-mode: screen;
-  opacity: 0.12;
-  filter: sepia(0.24) saturate(0.72) brightness(0.92);
-}
-
-.panel-script-clock {
-  left: -4px;
-  top: 26px;
-  width: 84px;
-  transform: rotate(-7deg);
-}
-
-.crest {
-  position: absolute;
-  left: 14px;
-  top: 54px;
-  width: 160px;
-  height: 56px;
-  opacity: 0.34;
-  background:
-    radial-gradient(circle at 14% 56%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.48), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0) 58%),
-    linear-gradient(90deg, rgba(244, 236, 228, 0.24), rgba(244, 236, 228, 0) 78%);
-  filter: blur(4px);
+  isolation: isolate;
 }
 
 .time {
   position: relative;
   z-index: 2;
-  margin-top: 50px;
-  font-size: clamp(62px, 8vw, 106px);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  line-height: 0.92;
-  font-family: Georgia, "Times New Roman", serif;
+  margin-top: 10px;
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.94;
+  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  color: rgba(214, 198, 185, 0.42);
   text-shadow:
-    0 0 calc(18px + var(--bass) * 18px) rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.16),
-    0 0 calc(6px + var(--treble) * 8px) rgba(255, 248, 240, 0.18);
+    0 1px 0 rgba(245, 235, 225, 0.05),
+    0 5px 10px rgba(8, 5, 5, 0.16);
+  text-align: center;
+  filter: saturate(0.58) brightness(0.86);
+}
+
+.time::before {
+  content: "SCREENING 01";
+  display: block;
+  margin-bottom: 6px;
+  font-family: "Times New Roman", serif;
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  color: rgba(216, 198, 183, 0.24);
 }
 
 .date {
   position: relative;
   z-index: 2;
-  margin-top: 14px;
-  padding-left: 4px;
-  font-size: 15px;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  font-family: "KaiTi", "STKaiti", "Kaiti SC", serif;
+  margin-top: 8px;
+  padding-top: 7px;
+  width: min(34vw, 420px);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: rgba(214, 198, 185, 0.24);
+  font-family: "Times New Roman", "KaiTi", serif;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-body[data-layout="right"] .hud {
-  justify-content: flex-end;
+.date::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(14vw, 140px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0), rgba(216, 198, 183, 0.18), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0));
 }
 
-body[data-layout="center"] .hud {
-  justify-content: center;
+.title-block {
+  position: absolute;
+  top: clamp(18px, 4.2vh, 58px);
+  left: var(--axis-x);
+  transform: translateX(-50%);
+  z-index: 4;
+  width: min(74vw, 1080px);
+  max-width: calc(100vw - 48px);
+  padding: 0 24px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  text-align: center;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.title-block::before {
+  content: "";
+  position: absolute;
+  inset: 10% 14% auto;
+  height: 62%;
+  background: radial-gradient(circle at center, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0) 74%);
+  filter: blur(24px);
+  opacity: 0.34;
+  z-index: -1;
+}
+
+.custom-subtitle,
+.custom-title,
+.custom-kicker {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.custom-subtitle {
+  max-width: min(42vw, 560px);
+  font-family: "Times New Roman", "KaiTi", serif;
+  font-size: clamp(13px, 1.15vw, 18px);
+  line-height: 1.05;
+  letter-spacing: 0.34em;
+  color: rgba(210, 193, 180, 0.24);
+  text-shadow: 0 3px 8px rgba(8, 5, 5, 0.12);
+  text-transform: uppercase;
+}
+
+.custom-title {
+  position: relative;
+  max-width: min(70vw, 1040px);
+  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  font-size: clamp(72px, 9vw, 140px);
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  color: rgba(188, 171, 157, 0.34);
+  text-shadow:
+    0 1px 0 rgba(242, 232, 222, 0.03),
+    0 5px 10px rgba(8, 5, 5, 0.12);
+  filter: saturate(0.48) brightness(0.74);
+  mix-blend-mode: normal;
+}
+
+.custom-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.12);
+  transform: translate(0.016em, 0.028em);
+  filter: blur(0.9px);
+  opacity: 0.9;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+.custom-kicker {
+  max-width: min(38vw, 520px);
+  margin-top: 2px;
+  padding-top: 8px;
+  position: relative;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(11px, 0.92vw, 14px);
+  letter-spacing: 0.42em;
+  color: rgba(214, 198, 184, 0.18);
+  text-transform: uppercase;
+}
+
+.custom-kicker::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(11vw, 112px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0), rgba(216, 198, 183, 0.18), rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0));
 }
 
 body[data-show-clock="false"] .clock-panel {
@@ -299,12 +380,12 @@ body[data-show-clock="false"] .clock-panel {
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 18px, 0) scale(0.98);
+    transform: translate3d(calc(-50% + var(--clock-offset-x)), calc(-50% + var(--clock-offset-y) + 18px), 0) scale(calc(var(--clock-scale) * 0.98));
   }
 
   to {
     opacity: 1;
-    transform: translate3d(calc(var(--mx) * 0.025), calc(var(--my) * 0.025), 0) scale(1);
+    transform: translate3d(calc(-50% + var(--clock-offset-x) + var(--mx) * 0.014), calc(-50% + var(--clock-offset-y) + var(--my) * 0.014), 0) scale(var(--clock-scale));
   }
 }
 
@@ -329,11 +410,34 @@ body[data-show-clock="false"] .clock-panel {
   }
 
   .clock-panel {
-    width: 100%;
-    min-height: 150px;
+    width: min(82vw, 380px);
+    min-height: 78px;
   }
 
   .time {
-    font-size: clamp(54px, 18vw, 82px);
+    font-size: clamp(38px, 11vw, 54px);
+  }
+
+  .title-block {
+    width: 84vw;
+    top: 22px;
+    gap: 5px;
+  }
+
+  .custom-subtitle {
+    max-width: 76vw;
+    font-size: clamp(11px, 3vw, 14px);
+    letter-spacing: 0.22em;
+  }
+
+  .custom-title {
+    max-width: 84vw;
+    font-size: clamp(52px, 12vw, 82px);
+  }
+
+  .custom-kicker {
+    max-width: 66vw;
+    font-size: clamp(10px, 2.8vw, 12px);
+    letter-spacing: 0.28em;
   }
 }

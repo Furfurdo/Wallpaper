@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ruihexian</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -41,18 +44,17 @@
   <div class="overlay"></div>
 
   <main id="hud" class="hud">
+    <div id="title-block" class="title-block">
+      <div id="custom-subtitle" class="custom-subtitle">&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;&#x554A;</div>
+      <div id="custom-title" class="custom-title">&#x745E;&#x9E64;&#x4ED9;</div>
+      <div id="custom-kicker" class="custom-kicker">RUI HE XIAN</div>
+    </div>
     <section id="clock-panel" class="clock-panel">
-      <img class="panel-script panel-script-clock" src="assets/zhong-silk.svg" alt="">
-      <div class="crest" aria-hidden="true"></div>
       <div id="time" class="time">00:00</div>
       <div id="date" class="date">0000-00-00</div>
     </section>
   </main>
 
-  <div id="audio-debug" class="audio-debug" aria-hidden="true" hidden>
-    <div id="audio-debug-dot" class="audio-debug-dot"></div>
-    <div id="audio-debug-text" class="audio-debug-text">0.00</div>
-  </div>
 
   <audio id="bgm" autoplay loop preload="auto" playsinline>
     <source src="assets/bgm.ogg" type="audio/ogg">
