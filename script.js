@@ -27,7 +27,6 @@ const featherParticles = [];
 const pointerState = {
   x: window.innerWidth * 0.5,
   y: window.innerHeight * 0.5,
-  active: false,
   hasMoved: false,
 };
 
@@ -38,6 +37,23 @@ const bgmEnvelopeReady = bgmEnvelope.length > 0 && bgmDuration > 0;
 const TITLE_PLACEHOLDER = "\u745e\u9e64\u4ed9";
 const SUBTITLE_PLACEHOLDER = "\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a";
 const KICKER_PLACEHOLDER = "RUI HE XIAN";
+const TITLE_DEFAULTS = {
+  title: TITLE_PLACEHOLDER,
+  subtitle: SUBTITLE_PLACEHOLDER,
+  kicker: KICKER_PLACEHOLDER,
+};
+const AUDIO_STYLE_VALUES = ["water", "bars", "dots"];
+const BASE_RIPPLE_SIZE = 88;
+const BASE_RIPPLE_INTENSITY = 1;
+const AUDIO_AXIS_RATIO = 0.5;
+const AUDIO_CENTER_Y_RATIO = 0.515;
+const AUDIO_CENTER_OFFSET_RADIUS_MULTIPLIER = 2.6;
+const CLOCK_Y_RATIO = 0.31;
+const SPECTRUM_BAR_COUNT = 41;
+const SPECTRUM_BAR_GAP = 6;
+const SPECTRUM_BAR_WIDTH_MIN = 2.2;
+const SPECTRUM_BAR_WIDTH_MULTIPLIER = 2.34;
+const MAX_FEATHER_COUNT = 4;
 
 const wallpaperConfig = {
   showClock: true,
@@ -49,9 +65,10 @@ const wallpaperConfig = {
   customSubtitle: SUBTITLE_PLACEHOLDER,
   customKicker: KICKER_PLACEHOLDER,
   accentColor: "rgb(146, 39, 31)",
+  audioStyle: "water",
+  audioScale: 100,
+  audioOffsetY: 0,
   audioSensitivity: 120,
-  pulseHeight: 88,
-  pulseThickness: 16,
   bgmVolume: 35,
   clockLocale: "zh-CN",
   hour12: false,
@@ -124,6 +141,65 @@ function parseColor(value) {
   return null;
 }
 
+
+function isValidAudioStyle(value) {
+  return AUDIO_STYLE_VALUES.includes(value);
+}
+
+function getAudioStyle(value, fallback = "water") {
+  return isValidAudioStyle(value) ? value : fallback;
+}
+
+function getAudioHaloConfig(style) {
+  switch (style) {
+    case "bars":
+      return { scale: 2.5, opacity: 0.055 };
+    case "dots":
+      return { scale: 2.05, opacity: 0.042 };
+    default:
+      return { scale: 2.6, opacity: 0.065 };
+  }
+}
+
+function normalizeText(value, fallback) {
+  return `${value || ""}`.trim() || fallback;
+}
+
+function toRgba(color, alpha) {
+  return color.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
+}
+
+function setDisplay(element, isVisible, displayValue = "block") {
+  if (!element) {
+    return;
+  }
+
+  element.style.display = isVisible ? displayValue : "none";
+}
+
+function updateTitleBlock() {
+  const titleText = normalizeText(wallpaperConfig.customTitle, TITLE_DEFAULTS.title);
+  const subtitleText = normalizeText(wallpaperConfig.customSubtitle, TITLE_DEFAULTS.subtitle);
+  const kickerText = normalizeText(wallpaperConfig.customKicker, TITLE_DEFAULTS.kicker);
+
+  if (customTitleElement) {
+    customTitleElement.textContent = titleText;
+    customTitleElement.setAttribute("data-text", titleText);
+  }
+
+  if (customSubtitleElement) {
+    customSubtitleElement.textContent = subtitleText;
+    setDisplay(customSubtitleElement, Boolean(subtitleText));
+  }
+
+  if (customKickerElement) {
+    customKickerElement.textContent = kickerText;
+    setDisplay(customKickerElement, Boolean(kickerText));
+  }
+
+  setDisplay(titleBlockElement, Boolean(titleText || subtitleText || kickerText), "flex");
+}
+
 function applyAccentColor(value) {
   const rgb = parseColor(value);
   if (!rgb) {
@@ -164,36 +240,12 @@ function applyLayout() {
 function applyConfig() {
   applyLayout();
   applyAccentColor(wallpaperConfig.accentColor);
-  root.style.setProperty("--pulse-height", `${clamp(parseNumber(wallpaperConfig.pulseHeight, 88), 20, 180)}`);
-  root.style.setProperty("--pulse-thickness", `${clamp(parseNumber(wallpaperConfig.pulseThickness, 16), 8, 36) / 10}`);
   root.style.setProperty("--clock-scale", `${clamp(parseNumber(wallpaperConfig.clockScale, 100), 60, 180) / 100}`);
   root.style.setProperty("--clock-offset-x", `${clamp(parseNumber(wallpaperConfig.clockOffsetX, 0), -600, 600)}px`);
   root.style.setProperty("--clock-offset-y", `${clamp(parseNumber(wallpaperConfig.clockOffsetY, 0), -400, 400)}px`);
   root.style.setProperty("--clock-opacity", `${clamp(parseNumber(wallpaperConfig.clockOpacity, 92), 10, 100) / 100}`);
   bgm.volume = clamp(parseNumber(wallpaperConfig.bgmVolume, 35) / 100, 0, 1);
-  const titleText = `${wallpaperConfig.customTitle || ""}`.trim() || TITLE_PLACEHOLDER;
-  const subtitleText = `${wallpaperConfig.customSubtitle || ""}`.trim() || SUBTITLE_PLACEHOLDER;
-  const kickerText = `${wallpaperConfig.customKicker || ""}`.trim() || KICKER_PLACEHOLDER;
-
-  if (customTitleElement) {
-    customTitleElement.textContent = titleText;
-    customTitleElement.setAttribute("data-text", titleText);
-    customTitleElement.style.display = "block";
-  }
-
-  if (customSubtitleElement) {
-    customSubtitleElement.textContent = subtitleText;
-    customSubtitleElement.style.display = subtitleText ? "block" : "none";
-  }
-
-  if (customKickerElement) {
-    customKickerElement.textContent = kickerText;
-    customKickerElement.style.display = kickerText ? "block" : "none";
-  }
-
-  if (titleBlockElement) {
-    titleBlockElement.style.display = titleText || subtitleText || kickerText ? "flex" : "none";
-  }
+  updateTitleBlock();
 }
 
 function bindParallax() {
@@ -212,14 +264,12 @@ function bindParallax() {
 
     pointerState.x = event.clientX;
     pointerState.y = event.clientY;
-    pointerState.active = true;
     pointerState.hasMoved = true;
   });
 
   window.addEventListener("mouseleave", () => {
     hud.style.setProperty("--mx", "0px");
     hud.style.setProperty("--my", "0px");
-    pointerState.active = false;
     pointerState.hasMoved = false;
   });
 }
@@ -239,14 +289,133 @@ function resizeCanvas() {
 function drawGlowBlob(x, y, radius, alpha, accent, coreAlpha = 0.24) {
   const gradient = canvasContext.createRadialGradient(x, y, 0, x, y, radius);
   gradient.addColorStop(0, `rgba(248, 241, 233, ${Math.min(coreAlpha + alpha * 0.6, 0.86)})`);
-  gradient.addColorStop(0.24, accent.replace("rgb(", "rgba(").replace(")", `, ${alpha})`));
-  gradient.addColorStop(0.78, accent.replace("rgb(", "rgba(").replace(")", `, ${alpha * 0.24})`));
+  gradient.addColorStop(0.24, toRgba(accent, alpha));
+  gradient.addColorStop(0.78, toRgba(accent, alpha * 0.24));
   gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
 
   canvasContext.beginPath();
   canvasContext.fillStyle = gradient;
   canvasContext.arc(x, y, radius, 0, Math.PI * 2);
   canvasContext.fill();
+}
+
+function drawWaterVisualizer(centerX, centerY, outerRadius, rippleAmplitude, rippleIntensity, bassPulse, midPulse, treblePulse, accent, spectrum, time) {
+  const rippleBase = outerRadius * 0.72;
+  const rings = [
+    {
+      radius: rippleBase + bassPulse * 10,
+      amplitude: rippleAmplitude * 0.9,
+      thickness: 3.2 + rippleIntensity * 0.8,
+      alpha: 0.24 + bassPulse * 0.04,
+      phase: time * 1.25,
+      rotation: time * 0.02,
+    },
+    {
+      radius: rippleBase + 34 + bassPulse * 14 + midPulse * 4,
+      amplitude: rippleAmplitude * 1.08,
+      thickness: 2.8 + rippleIntensity * 0.65,
+      alpha: 0.18 + midPulse * 0.04,
+      phase: time * 1.08 + 1.4,
+      rotation: -time * 0.018,
+    },
+    {
+      radius: rippleBase + 70 + bassPulse * 18 + treblePulse * 8,
+      amplitude: rippleAmplitude * 1.16,
+      thickness: 2.2 + rippleIntensity * 0.55,
+      alpha: 0.14 + treblePulse * 0.03,
+      phase: time * 0.96 + 2.2,
+      rotation: time * 0.014,
+    },
+  ];
+
+  rings.forEach((ring) => {
+    drawRippleRing(centerX, centerY, ring.radius, ring.amplitude, ring.thickness, ring.alpha, accent, spectrum, ring.phase, ring.rotation);
+  });
+
+  for (let index = 0; index < 10; index += 1) {
+    const angle = time * 0.28 + (Math.PI * 2 * index) / 10;
+    const distance = rippleBase + 52 + bassPulse * 20 + Math.sin(time * 1.2 + index * 0.7) * 8;
+    const x = centerX + Math.cos(angle) * distance;
+    const y = centerY + Math.sin(angle) * distance * 0.93;
+    const size = 7 + treblePulse * 4 + (index % 3);
+    drawGlowBlob(x, y, size * 1.6, 0.07 + treblePulse * 0.03, accent, 0.08);
+  }
+}
+
+
+function drawBarsVisualizer(centerX, centerY, outerRadius, rippleAmplitude, rippleIntensity, bassPulse, midPulse, treblePulse, accent, spectrum, time) {
+  const count = 48;
+  const radius = outerRadius * 0.88;
+  const yScale = 0.9;
+  drawGlowBlob(centerX, centerY, outerRadius * 0.32, 0.022 + bassPulse * 0.008, accent, 0.018);
+
+  for (let index = 0; index < count; index += 1) {
+    const progress = index / count;
+    const angle = progress * Math.PI * 2 - Math.PI / 2 + time * 0.03;
+    const energy = spectrum[Math.floor(progress * (spectrum.length - 1))] || 0;
+    const inner = radius + Math.sin(time * 0.6 + index * 0.2) * 1.5;
+    const bar = 32 + energy * (74 + rippleAmplitude * 0.24) + bassPulse * 18;
+    const thickness = 1.8 + rippleIntensity * 0.16 + (index % 5 === 0 ? 0.9 : 0);
+    const x1 = centerX + Math.cos(angle) * inner;
+    const y1 = centerY + Math.sin(angle) * inner * yScale;
+    const x2 = centerX + Math.cos(angle) * (inner + bar);
+    const y2 = centerY + Math.sin(angle) * (inner + bar) * yScale;
+
+    canvasContext.beginPath();
+    canvasContext.moveTo(x1, y1);
+    canvasContext.lineTo(x2, y2);
+    canvasContext.lineWidth = thickness;
+    canvasContext.strokeStyle = toRgba(accent, 0.12 + energy * 0.18);
+    canvasContext.shadowBlur = 10 + energy * 10;
+    canvasContext.shadowColor = toRgba(accent, 0.08 + energy * 0.1);
+    canvasContext.lineCap = "round";
+    canvasContext.stroke();
+  }
+
+  drawOpenArc(centerX, centerY, radius - 12, (radius - 12) * yScale, Math.PI * 0.16, Math.PI * 0.84, 2, 0.08 + midPulse * 0.018, accent, time * 0.008);
+  drawOpenArc(centerX, centerY, radius - 12, (radius - 12) * yScale, Math.PI * 1.16, Math.PI * 1.84, 2, 0.08 + treblePulse * 0.018, accent, -time * 0.008);
+}
+
+function drawSpectrumBarsVisualizer(centerX, centerY, stableOuterRadius, rippleAmplitude, bassPulse, midPulse, accent, spectrum) {
+  const totalWidth = stableOuterRadius * SPECTRUM_BAR_WIDTH_MULTIPLIER;
+  const barWidth = Math.max(SPECTRUM_BAR_WIDTH_MIN, (totalWidth - SPECTRUM_BAR_GAP * (SPECTRUM_BAR_COUNT - 1)) / SPECTRUM_BAR_COUNT);
+  const startX = centerX - totalWidth / 2;
+  const baselineY = centerY;
+  const maxHeight = stableOuterRadius * 1.08;
+  const centerIndex = Math.floor(SPECTRUM_BAR_COUNT / 2);
+  const sideCount = centerIndex;
+
+  drawGlowBlob(centerX, centerY, stableOuterRadius * 0.16, 0.01 + midPulse * 0.004, accent, 0.01);
+
+  canvasContext.beginPath();
+  canvasContext.moveTo(startX - 18, baselineY);
+  canvasContext.lineTo(startX + totalWidth + 18, baselineY);
+  canvasContext.lineWidth = 1;
+  canvasContext.strokeStyle = toRgba(accent, 0.06);
+  canvasContext.stroke();
+
+  for (let index = 0; index < SPECTRUM_BAR_COUNT; index += 1) {
+    if (index >= SPECTRUM_BAR_COUNT - 7) {
+      continue;
+    }
+
+    const mirroredIndex = index <= centerIndex ? index : SPECTRUM_BAR_COUNT - 1 - index;
+    const progress = mirroredIndex / Math.max(sideCount, 1);
+    const energy = spectrum[Math.floor(progress * (spectrum.length - 1))] || 0;
+    const x = startX + index * (barWidth + SPECTRUM_BAR_GAP);
+    const distanceFromCenter = Math.abs(index - centerIndex) / Math.max(centerIndex, 1);
+    const centerSuppression = 0.58 + distanceFromCenter * 0.42;
+    const upperHeight = (10 + energy * (maxHeight + rippleAmplitude * 0.18) + bassPulse * 4) * centerSuppression;
+    const lowerHeight = Math.max(2.5, upperHeight * (0.08 + midPulse * 0.02));
+    const alpha = 0.16 + energy * 0.22;
+    const fill = toRgba(accent, alpha);
+
+    canvasContext.shadowBlur = 6 + energy * 8;
+    canvasContext.shadowColor = toRgba(accent, 0.05 + energy * 0.05);
+    canvasContext.fillStyle = fill;
+    canvasContext.fillRect(x, baselineY - upperHeight, barWidth, upperHeight);
+    canvasContext.fillRect(x, baselineY + 3, barWidth, lowerHeight);
+  }
 }
 
 function drawRippleRing(centerX, centerY, baseRadius, amplitude, thickness, alpha, accent, spectrum, phase, rotation = 0) {
@@ -276,12 +445,28 @@ function drawRippleRing(centerX, centerY, baseRadius, amplitude, thickness, alph
 
   canvasContext.closePath();
   canvasContext.lineWidth = thickness;
-  canvasContext.strokeStyle = accent.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
+  canvasContext.strokeStyle = toRgba(accent, alpha);
   canvasContext.shadowBlur = 18 + amplitude * 0.28;
-  canvasContext.shadowColor = accent.replace("rgb(", "rgba(").replace(")", `, ${alpha * 0.44})`);
+  canvasContext.shadowColor = toRgba(accent, alpha * 0.44);
   canvasContext.lineJoin = "round";
   canvasContext.lineCap = "round";
   canvasContext.stroke();
+}
+
+
+function drawOpenArc(centerX, centerY, radiusX, radiusY, startAngle, endAngle, thickness, alpha, accent, rotation = 0) {
+  canvasContext.save();
+  canvasContext.translate(centerX, centerY);
+  canvasContext.rotate(rotation);
+  canvasContext.beginPath();
+  canvasContext.ellipse(0, 0, radiusX, radiusY, 0, startAngle, endAngle);
+  canvasContext.lineWidth = thickness;
+  canvasContext.strokeStyle = toRgba(accent, alpha);
+  canvasContext.shadowBlur = 12;
+  canvasContext.shadowColor = toRgba(accent, alpha * 0.35);
+  canvasContext.lineCap = "round";
+  canvasContext.stroke();
+  canvasContext.restore();
 }
 
 function spawnFeathers(fromX, fromY, toX, toY) {
@@ -298,10 +483,8 @@ function spawnFeathers(fromX, fromY, toX, toY) {
   }
 
   lastFeatherSpawn = now;
-  const count = 1;
-
-  for (let index = 0; index < count; index += 1) {
-    if (featherParticles.length >= 4) {
+  for (let index = 0; index < 1; index += 1) {
+    if (featherParticles.length >= MAX_FEATHER_COUNT) {
       break;
     }
 
@@ -324,8 +507,8 @@ function spawnFeathers(fromX, fromY, toX, toY) {
     });
   }
 
-  if (featherParticles.length > 4) {
-    featherParticles.splice(0, featherParticles.length - 4);
+  if (featherParticles.length > MAX_FEATHER_COUNT) {
+    featherParticles.splice(0, featherParticles.length - MAX_FEATHER_COUNT);
   }
 }
 
@@ -345,11 +528,9 @@ function drawFeatherParticle(particle) {
   if (featherImage.complete) {
     const drawWidth = particle.size * 3.1;
     const drawHeight = particle.size * 1.22;
+    canvasContext.filter = "brightness(0.08) saturate(0.2)";
     canvasContext.drawImage(featherImage, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-    canvasContext.globalCompositeOperation = "source-atop";
-    canvasContext.fillStyle = "rgba(6, 5, 6, 1)";
-    canvasContext.fillRect(-drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
-    canvasContext.globalCompositeOperation = "source-over";
+    canvasContext.filter = "none";
   } else {
     canvasContext.fillStyle = "rgba(10, 9, 10, 0.94)";
     canvasContext.beginPath();
@@ -385,98 +566,67 @@ function drawVisualizer() {
   const width = window.innerWidth;
   const height = window.innerHeight;
   const accent = getComputedStyle(root).getPropertyValue("--accent").trim() || "rgb(146, 39, 31)";
-  const rippleSize = clamp(parseNumber(wallpaperConfig.pulseHeight, 88), 20, 180);
-  const rippleIntensity = clamp(parseNumber(wallpaperConfig.pulseThickness, 16), 8, 36) / 16;
-  const centerX = width * 0.503;
+  const rippleIntensity = BASE_RIPPLE_INTENSITY;
+  const axisX = width * AUDIO_AXIS_RATIO;
+  const centerX = axisX;
   const time = performance.now() * 0.001;
   const bassPulse = Math.pow(audioState.bass, 1.02) * 1.9;
   const midPulse = Math.pow(audioState.mid, 0.98) * 1.6;
   const treblePulse = Math.pow(audioState.treble, 0.94) * 1.35;
-  const sunRadius = Math.min(width, height) * 0.076 + rippleSize * 0.2;
-  const centerY = height * 0.515 + sunRadius * 2.6;
+  const audioScale = clamp(parseNumber(wallpaperConfig.audioScale, 100), 40, 240) / 100;
+  const audioOffsetY = clamp(parseNumber(wallpaperConfig.audioOffsetY, 0), -400, 400);
+  const anchorRadius = Math.min(width, height) * 0.076 + BASE_RIPPLE_SIZE * 0.2;
+  const centerY = height * AUDIO_CENTER_Y_RATIO + anchorRadius * AUDIO_CENTER_OFFSET_RADIUS_MULTIPLIER + audioOffsetY;
+  const sunRadius = Math.min(width, height) * 0.076 + BASE_RIPPLE_SIZE * 0.2;
+  const stableOuterRadius = sunRadius * 1.46;
   const outerRadius = sunRadius * (1.46 + bassPulse * 0.18);
-  const rippleAmplitude = 20 + rippleSize * 0.12 + bassPulse * 18 + treblePulse * 8;
+  const rippleAmplitude = 20 + BASE_RIPPLE_SIZE * 0.12 + bassPulse * 18 + treblePulse * 8;
+  const audioStyle = getAudioStyle(wallpaperConfig.audioStyle);
 
   canvasContext.clearRect(0, 0, width, height);
 
   if (waterHalo) {
+    const haloConfig = getAudioHaloConfig(audioStyle);
     waterHalo.style.left = `${centerX}px`;
     waterHalo.style.top = `${centerY}px`;
-    waterHalo.style.width = `${outerRadius * 2.9}px`;
+    waterHalo.style.width = `${outerRadius * haloConfig.scale * audioScale}px`;
+    waterHalo.style.opacity = `${haloConfig.opacity + bassPulse * 0.01 + midPulse * 0.004}`;
   }
-  const axisX = centerX;
+
   const clockX = axisX;
-  const clockY = height * 0.31;
+  const clockY = height * CLOCK_Y_RATIO;
   root.style.setProperty("--axis-x", `${axisX}px`);
   root.style.setProperty("--clock-x", `${clockX}px`);
   root.style.setProperty("--clock-y", `${clockY}px`);
 
-  const halo = canvasContext.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius * 1.45);
-  halo.addColorStop(0, "rgba(249, 242, 234, 0.06)");
-  halo.addColorStop(0.12, accent.replace("rgb(", "rgba(").replace(")", ", 0.16)"));
-  halo.addColorStop(0.38, accent.replace("rgb(", "rgba(").replace(")", ", 0.1)"));
-  halo.addColorStop(0.7, accent.replace("rgb(", "rgba(").replace(")", ", 0.03)"));
+  canvasContext.save();
+  canvasContext.translate(centerX, centerY);
+  canvasContext.scale(audioScale, audioScale);
+  canvasContext.translate(-centerX, -centerY);
+
+  const halo = canvasContext.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius * 1.52);
+  halo.addColorStop(0, "rgba(249, 242, 234, 0.02)");
+  halo.addColorStop(0.08, toRgba(accent, 0.08));
+  halo.addColorStop(0.28, toRgba(accent, 0.055));
+  halo.addColorStop(0.62, toRgba(accent, 0.018));
   halo.addColorStop(1, "rgba(0, 0, 0, 0)");
   canvasContext.beginPath();
   canvasContext.fillStyle = halo;
-  canvasContext.arc(centerX, centerY, outerRadius * 1.45, 0, Math.PI * 2);
+  canvasContext.arc(centerX, centerY, outerRadius * 1.52, 0, Math.PI * 2);
   canvasContext.fill();
 
-  const rippleBase = sunRadius * 1.04;
   const spectrum = audioState.spectrum;
-  const rings = [
-    {
-      radius: rippleBase + bassPulse * 10,
-      amplitude: rippleAmplitude * 0.9,
-      thickness: 3.2 + rippleIntensity * 0.8,
-      alpha: 0.24 + bassPulse * 0.04,
-      phase: time * 1.25,
-      rotation: time * 0.02,
-    },
-    {
-      radius: rippleBase + 34 + bassPulse * 14 + midPulse * 4,
-      amplitude: rippleAmplitude * 1.08,
-      thickness: 2.8 + rippleIntensity * 0.65,
-      alpha: 0.18 + midPulse * 0.04,
-      phase: time * 1.08 + 1.4,
-      rotation: -time * 0.018,
-    },
-    {
-      radius: rippleBase + 70 + bassPulse * 18 + treblePulse * 8,
-      amplitude: rippleAmplitude * 1.16,
-      thickness: 2.2 + rippleIntensity * 0.55,
-      alpha: 0.14 + treblePulse * 0.03,
-      phase: time * 0.96 + 2.2,
-      rotation: time * 0.014,
-    },
-  ];
-
-  rings.forEach((ring) => {
-    drawRippleRing(
-      centerX,
-      centerY,
-      ring.radius,
-      ring.amplitude,
-      ring.thickness,
-      ring.alpha,
-      accent,
-      spectrum,
-      ring.phase,
-      ring.rotation,
-    );
-  });
-
-  const dropletCount = 10;
-  for (let index = 0; index < dropletCount; index += 1) {
-    const angle = time * 0.28 + (Math.PI * 2 * index) / dropletCount;
-    const distance = rippleBase + 52 + bassPulse * 20 + Math.sin(time * 1.2 + index * 0.7) * 8;
-    const x = centerX + Math.cos(angle) * distance;
-    const y = centerY + Math.sin(angle) * distance * 0.93;
-    const size = 7 + treblePulse * 4 + (index % 3);
-    drawGlowBlob(x, y, size * 1.6, 0.07 + treblePulse * 0.03, accent, 0.08);
+  if (audioStyle === "bars") {
+    drawBarsVisualizer(centerX, centerY, outerRadius, rippleAmplitude, rippleIntensity, bassPulse, midPulse, treblePulse, accent, spectrum, time);
+  } else if (audioStyle === "dots") {
+    drawSpectrumBarsVisualizer(centerX, centerY, stableOuterRadius, rippleAmplitude, bassPulse, midPulse, accent, spectrum);
+  } else {
+    drawWaterVisualizer(centerX, centerY, outerRadius, rippleAmplitude, rippleIntensity, bassPulse, midPulse, treblePulse, accent, spectrum, time);
   }
+  canvasContext.restore();
 
   canvasContext.shadowBlur = 0;
+  canvasContext.globalCompositeOperation = "source-over";
   updateAndDrawFeathers();
 }
 
@@ -640,23 +790,26 @@ window.wallpaperPropertyListener = {
     applyUserProperty(properties, "accentcolor", (value) => {
       wallpaperConfig.accentColor = value;
     });
+    applyUserProperty(properties, "audiostyle", (value) => {
+      wallpaperConfig.audioStyle = getAudioStyle(value, wallpaperConfig.audioStyle);
+    });
+    applyUserProperty(properties, "audioscale", (value) => {
+      wallpaperConfig.audioScale = parseNumber(value, wallpaperConfig.audioScale);
+    });
+    applyUserProperty(properties, "audiooffsety", (value) => {
+      wallpaperConfig.audioOffsetY = parseNumber(value, wallpaperConfig.audioOffsetY);
+    });
     applyUserProperty(properties, "customtitle", (value) => {
-      wallpaperConfig.customTitle = `${value}`.trim() || TITLE_PLACEHOLDER;
+      wallpaperConfig.customTitle = normalizeText(value, TITLE_DEFAULTS.title);
     });
     applyUserProperty(properties, "customsubtitle", (value) => {
-      wallpaperConfig.customSubtitle = `${value}`.trim() || SUBTITLE_PLACEHOLDER;
+      wallpaperConfig.customSubtitle = normalizeText(value, TITLE_DEFAULTS.subtitle);
     });
     applyUserProperty(properties, "customkicker", (value) => {
-      wallpaperConfig.customKicker = `${value}`.trim() || KICKER_PLACEHOLDER;
+      wallpaperConfig.customKicker = normalizeText(value, TITLE_DEFAULTS.kicker);
     });
     applyUserProperty(properties, "audiosensitivity", (value) => {
       wallpaperConfig.audioSensitivity = parseNumber(value, wallpaperConfig.audioSensitivity);
-    });
-    applyUserProperty(properties, "pulseheight", (value) => {
-      wallpaperConfig.pulseHeight = parseNumber(value, wallpaperConfig.pulseHeight);
-    });
-    applyUserProperty(properties, "pulsethickness", (value) => {
-      wallpaperConfig.pulseThickness = parseNumber(value, wallpaperConfig.pulseThickness);
     });
     applyUserProperty(properties, "bgmvolume", (value) => {
       wallpaperConfig.bgmVolume = parseNumber(value, wallpaperConfig.bgmVolume);

@@ -4,7 +4,6 @@
 
 :root {
   --foreground: #f2e7d7;
-  --muted: rgba(236, 224, 210, 0.72);
   --accent-r: 146;
   --accent-g: 39;
   --accent-b: 31;
@@ -15,8 +14,6 @@
   --bass: 0;
   --mid: 0;
   --treble: 0;
-  --pulse-height: 88;
-  --pulse-thickness: 1.6;
   --mx: 0px;
   --my: 0px;
   --axis-x: 50vw;
@@ -120,11 +117,11 @@ body {
   transform: translate(-50%, -50%) scale(calc(0.96 + var(--bass) * 0.05));
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, rgba(247, 240, 232, 0.08) 0 8%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.24) 20%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.16) 34%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.05) 52%, rgba(0, 0, 0, 0) 72%),
-    radial-gradient(circle at 50% 48%, rgba(248, 242, 236, 0.05), rgba(255, 255, 255, 0) 40%);
-  opacity: calc(0.1 + var(--bass) * 0.08 + var(--mid) * 0.03);
+    radial-gradient(circle at center, rgba(247, 240, 232, 0.03) 0 5%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.14) 14%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.1) 26%, rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.035) 44%, rgba(0, 0, 0, 0) 68%),
+    radial-gradient(circle at 50% 48%, rgba(248, 242, 236, 0.025), rgba(255, 255, 255, 0) 28%);
+  opacity: calc(0.07 + var(--bass) * 0.05 + var(--mid) * 0.02);
   mix-blend-mode: screen;
-  filter: blur(16px) saturate(0.86) brightness(0.78);
+  filter: blur(18px) saturate(0.82) brightness(0.72);
 }
 
 .ambient {

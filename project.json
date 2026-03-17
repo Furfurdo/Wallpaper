@@ -13,7 +13,7 @@
         "index": 10,
         "max": 250,
         "min": 20,
-        "order": 110,
+        "order": 111,
         "precision": 0,
         "text": "Audio Sensitivity (%)",
         "type": "slider",
@@ -23,7 +23,7 @@
         "index": 13,
         "max": 100,
         "min": 0,
-        "order": 113,
+        "order": 115,
         "precision": 0,
         "text": "BGM Volume (%)",
         "type": "slider",
@@ -71,44 +71,24 @@
       },
       "customkicker": {
         "index": 9,
-        "order": 109,
+        "order": 110,
         "text": "Title Footer",
         "type": "textinput",
         "value": "RUI HE XIAN"
       },
       "customsubtitle": {
         "index": 7,
-        "order": 107,
+        "order": 108,
         "text": "Subtitle Text",
         "type": "textinput",
         "value": "\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a"
       },
       "customtitle": {
         "index": 8,
-        "order": 108,
+        "order": 109,
         "text": "Main Title",
         "type": "textinput",
         "value": "\u745e\u9e64\u4ed9"
-      },
-      "pulseheight": {
-        "index": 11,
-        "max": 180,
-        "min": 20,
-        "order": 111,
-        "precision": 0,
-        "text": "Ripple Radius",
-        "type": "slider",
-        "value": 88
-      },
-      "pulsethickness": {
-        "index": 12,
-        "max": 36,
-        "min": 8,
-        "order": 112,
-        "precision": 0,
-        "text": "Ripple Intensity",
-        "type": "slider",
-        "value": 16
       },
       "schemecolor": {
         "order": 0,
@@ -122,6 +102,47 @@
         "text": "Show Clock",
         "type": "bool",
         "value": true
+      },
+      "audiostyle": {
+        "index": 14,
+        "order": 107,
+        "text": "Audio Style",
+        "type": "combo",
+        "value": "water",
+        "options": [
+          {
+            "label": "Water Ripple",
+            "value": "water"
+          },
+          {
+            "label": "Radial Bars",
+            "value": "bars"
+          },
+          {
+            "label": "Spectrum Bars",
+            "value": "dots"
+          }
+        ]
+      },
+      "audioscale": {
+        "index": 15,
+        "order": 112,
+        "text": "Audio Size (%)",
+        "type": "slider",
+        "min": 40,
+        "max": 240,
+        "precision": 0,
+        "value": 100
+      },
+      "audiooffsety": {
+        "index": 16,
+        "order": 116,
+        "text": "Audio Offset Y",
+        "type": "slider",
+        "min": -400,
+        "max": 400,
+        "precision": 0,
+        "value": 0
       }
     },
     "supportsaudioprocessing": true
