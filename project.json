@@ -81,14 +81,14 @@
         "order": 108,
         "text": "Subtitle Text",
         "type": "textinput",
-        "value": "\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a\u554a"
+        "value": "啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊"
       },
       "customtitle": {
         "index": 8,
         "order": 109,
         "text": "Main Title",
         "type": "textinput",
-        "value": "\u745e\u9e64\u4ed9"
+        "value": "瑞鹤仙"
       },
       "schemecolor": {
         "order": 0,
@@ -147,7 +147,7 @@
     },
     "supportsaudioprocessing": true
   },
-  "title": "ruihexian",
+  "title": "瑞鹤仙",
   "type": "web",
   "version": 0
 }

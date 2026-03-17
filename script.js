@@ -5,7 +5,6 @@ const customSubtitleElement = document.getElementById("custom-subtitle");
 const customKickerElement = document.getElementById("custom-kicker");
 const titleBlockElement = document.getElementById("title-block");
 const bgm = document.getElementById("bgm");
-const hud = document.getElementById("hud");
 const root = document.documentElement;
 const body = document.body;
 const canvas = document.getElementById("audio-canvas");
@@ -27,6 +26,8 @@ const featherParticles = [];
 const pointerState = {
   x: window.innerWidth * 0.5,
   y: window.innerHeight * 0.5,
+  axisShiftX: 0,
+  axisShiftY: 0,
   hasMoved: false,
 };
 
@@ -48,6 +49,7 @@ const BASE_RIPPLE_INTENSITY = 1;
 const AUDIO_AXIS_RATIO = 0.5;
 const AUDIO_CENTER_Y_RATIO = 0.515;
 const AUDIO_CENTER_OFFSET_RADIUS_MULTIPLIER = 2.6;
+const WALLPAPER_AUDIO_TIMEOUT_MS = 120;
 const CLOCK_Y_RATIO = 0.31;
 const SPECTRUM_BAR_COUNT = 41;
 const SPECTRUM_BAR_GAP = 6;
@@ -254,9 +256,15 @@ function bindParallax() {
     const centerY = window.innerHeight / 2;
     const offsetX = ((event.clientX - centerX) / centerX) * 14;
     const offsetY = ((event.clientY - centerY) / centerY) * 14;
+    const axisShiftX = offsetX * 0.55;
+    const axisShiftY = offsetY * 0.32;
 
-    hud.style.setProperty("--mx", `${offsetX.toFixed(2)}px`);
-    hud.style.setProperty("--my", `${offsetY.toFixed(2)}px`);
+    pointerState.axisShiftX = axisShiftX;
+    pointerState.axisShiftY = axisShiftY;
+    root.style.setProperty("--mx", `${offsetX.toFixed(2)}px`);
+    root.style.setProperty("--my", `${offsetY.toFixed(2)}px`);
+    root.style.setProperty("--axis-shift-x", `${axisShiftX.toFixed(2)}px`);
+    root.style.setProperty("--axis-shift-y", `${axisShiftY.toFixed(2)}px`);
 
     if (pointerState.hasMoved) {
       spawnFeathers(pointerState.x, pointerState.y, event.clientX, event.clientY);
@@ -268,8 +276,12 @@ function bindParallax() {
   });
 
   window.addEventListener("mouseleave", () => {
-    hud.style.setProperty("--mx", "0px");
-    hud.style.setProperty("--my", "0px");
+    pointerState.axisShiftX = 0;
+    pointerState.axisShiftY = 0;
+    root.style.setProperty("--mx", "0px");
+    root.style.setProperty("--my", "0px");
+    root.style.setProperty("--axis-shift-x", "0px");
+    root.style.setProperty("--axis-shift-y", "0px");
     pointerState.hasMoved = false;
   });
 }
@@ -567,7 +579,7 @@ function drawVisualizer() {
   const height = window.innerHeight;
   const accent = getComputedStyle(root).getPropertyValue("--accent").trim() || "rgb(146, 39, 31)";
   const rippleIntensity = BASE_RIPPLE_INTENSITY;
-  const axisX = width * AUDIO_AXIS_RATIO;
+  const axisX = width * AUDIO_AXIS_RATIO + pointerState.axisShiftX;
   const centerX = axisX;
   const time = performance.now() * 0.001;
   const bassPulse = Math.pow(audioState.bass, 1.02) * 1.9;
@@ -576,7 +588,7 @@ function drawVisualizer() {
   const audioScale = clamp(parseNumber(wallpaperConfig.audioScale, 100), 40, 240) / 100;
   const audioOffsetY = clamp(parseNumber(wallpaperConfig.audioOffsetY, 0), -400, 400);
   const anchorRadius = Math.min(width, height) * 0.076 + BASE_RIPPLE_SIZE * 0.2;
-  const centerY = height * AUDIO_CENTER_Y_RATIO + anchorRadius * AUDIO_CENTER_OFFSET_RADIUS_MULTIPLIER + audioOffsetY;
+  const centerY = height * AUDIO_CENTER_Y_RATIO + anchorRadius * AUDIO_CENTER_OFFSET_RADIUS_MULTIPLIER + audioOffsetY + pointerState.axisShiftY;
   const sunRadius = Math.min(width, height) * 0.076 + BASE_RIPPLE_SIZE * 0.2;
   const stableOuterRadius = sunRadius * 1.46;
   const outerRadius = sunRadius * (1.46 + bassPulse * 0.18);
@@ -737,13 +749,15 @@ function initAudioAnalysis() {
 }
 
 function sampleBgmAudio() {
-  sampleBgmEnvelope();
-
-  if (!analyserNode || !analyserData) {
+  // Prefer Wallpaper Engine's live audio callback when it is active.
+  if (performance.now() - wallpaperAudioTimestamp < WALLPAPER_AUDIO_TIMEOUT_MS) {
     return;
   }
 
-  if (!bgmReady || performance.now() - wallpaperAudioTimestamp < 120) {
+  // Fall back to the local media analyser when live callback data is unavailable.
+  if (!analyserNode || !analyserData || !bgmReady) {
+    // Last-resort fallback for environments where live analysis cannot start.
+    sampleBgmEnvelope();
     return;
   }
 

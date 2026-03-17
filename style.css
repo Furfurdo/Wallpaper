@@ -17,13 +17,14 @@
   --mx: 0px;
   --my: 0px;
   --axis-x: 50vw;
+  --axis-shift-x: 0px;
+  --axis-shift-y: 0px;
   --clock-x: 50vw;
   --clock-y: 50vh;
   --clock-offset-x: 0px;
   --clock-offset-y: 0px;
   --clock-scale: 1;
   --clock-opacity: 0.92;
-  --paper-url: url("https://cdn.pixabay.com/photo/2024/02/23/17/31/ai-generated-8592554_1280.png");
 }
 
 html,
@@ -55,7 +56,6 @@ body {
 }
 
 .texture,
-.ornament,
 .water-halo {
   position: fixed;
   pointer-events: none;
@@ -65,8 +65,13 @@ body {
   inset: 0;
   z-index: 0;
   background:
+    radial-gradient(circle at 18% 14%, rgba(242, 232, 220, 0.028), transparent 18%),
+    radial-gradient(circle at 76% 28%, rgba(236, 222, 207, 0.022), transparent 20%),
+    radial-gradient(circle at 42% 72%, rgba(223, 208, 194, 0.018), transparent 26%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.008) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.006) 0 1px, rgba(0, 0, 0, 0) 1px 5px),
     linear-gradient(180deg, rgba(5, 4, 4, 0.08), rgba(6, 4, 5, 0.28)),
-    var(--paper-url) center/cover no-repeat;
+    radial-gradient(circle at center, rgba(126, 95, 83, 0.06), rgba(0, 0, 0, 0) 62%);
   mix-blend-mode: soft-light;
   opacity: 0.16;
 }
@@ -79,33 +84,6 @@ body {
     radial-gradient(circle at 50% 46%, rgba(248, 236, 220, 0.05), transparent 11%),
     radial-gradient(circle at 76% 24%, rgba(236, 223, 204, 0.04), transparent 22%),
     linear-gradient(180deg, rgba(8, 6, 7, 0.02), rgba(3, 2, 3, 0.22));
-}
-
-.ornament {
-  z-index: 1;
-  display: block;
-  max-width: none;
-  user-select: none;
-}
-
-.ornament-branch {
-  top: -6vh;
-  right: -8vw;
-  width: min(44vw, 700px);
-  opacity: 0.15;
-  transform: rotate(-2deg) scale(calc(1 + var(--treble) * 0.025));
-  filter: saturate(0.78) sepia(0.2) hue-rotate(-12deg) brightness(0.84);
-  mix-blend-mode: screen;
-}
-
-.ornament-petals {
-  left: -6vw;
-  bottom: -12vh;
-  width: min(42vw, 640px);
-  opacity: calc(0.05 + var(--treble) * 0.03);
-  transform: rotate(7deg) translate3d(0, calc(var(--mid) * -5px), 0);
-  filter: blur(1px) saturate(0.6) brightness(0.66);
-  mix-blend-mode: screen;
 }
 
 .water-halo {
@@ -160,13 +138,13 @@ body {
 .mist-left {
   left: -8vw;
   bottom: -2vh;
-  transform: rotate(4deg) scale(1.08);
+  transform: translate3d(calc(var(--axis-shift-x) * -0.4), calc(var(--axis-shift-y) * -0.18), 0) rotate(4deg) scale(1.08);
 }
 
 .mist-right {
   right: -15vw;
   top: 4vh;
-  transform: rotate(-12deg) scale(0.96);
+  transform: translate3d(calc(var(--axis-shift-x) * 0.34), calc(var(--axis-shift-y) * 0.12), 0) rotate(-12deg) scale(0.96);
 }
 
 .audio-canvas {
@@ -223,7 +201,7 @@ body {
   font-weight: 400;
   letter-spacing: 0.01em;
   line-height: 0.94;
-  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  font-family: "STKaiti", "KaiTi", "Kaiti SC", cursive;
   color: rgba(214, 198, 185, 0.42);
   text-shadow:
     0 1px 0 rgba(245, 235, 225, 0.05),
@@ -271,8 +249,8 @@ body {
 .title-block {
   position: absolute;
   top: clamp(18px, 4.2vh, 58px);
-  left: var(--axis-x);
-  transform: translateX(-50%);
+  left: calc(var(--axis-x));
+  transform: translate3d(-50%, calc(var(--axis-shift-y) * 0.42), 0);
   z-index: 4;
   width: min(74vw, 1080px);
   max-width: calc(100vw - 48px);
@@ -323,7 +301,7 @@ body {
 .custom-title {
   position: relative;
   max-width: min(70vw, 1040px);
-  font-family: "Ma Shan Zheng", "STKaiti", "KaiTi", cursive;
+  font-family: "STKaiti", "KaiTi", "Kaiti SC", cursive;
   font-size: clamp(72px, 9vw, 140px);
   line-height: 0.98;
   letter-spacing: 0.06em;
@@ -387,16 +365,6 @@ body[data-show-clock="false"] .clock-panel {
 }
 
 @media (max-width: 800px) {
-  .ornament-branch {
-    width: 68vw;
-    right: -18vw;
-  }
-
-  .ornament-petals {
-    width: 60vw;
-    left: -18vw;
-  }
-
   .water-halo {
     width: 62vw;
     top: 49%;
